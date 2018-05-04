@@ -19,24 +19,50 @@ function printStacks() {
   console.log("c: " + stacks.c);
 }
 
-function movePiece() {
-  // Your code here
-
+function movePiece(startStack, endStack) {
+  const startArr = stacks[startStack];
+  const endArr = stacks[endStack];
+  endArr.push(startArr.pop());
+  return [startArr, endArr]
 }
 
-function isLegal() {
-  // Your code here
-
+function isLegal(startStack, endStack) {
+  const startArr = stacks[startStack];
+  const endArr = stacks[endStack];
+  if (!startArr[0])return false
+  if (!endArr[0])return true
+  if (startArr[startArr.length -1] < endArr[endArr.length -1]) return true;
+  return false;
 }
 
 function checkForWin() {
-  // Your code here
+  return Boolean(stacks.b.length === 4)
+}
 
+function resetStacks() {
+  stacks.a = [4, 3, 2, 1];
+  stacks.b = [];
+  stacks.c = [];
 }
 
 function towersOfHanoi(startStack, endStack) {
-  // Your code here
-
+  const legalStacks = ['a','b','c'];
+  if (legalStacks.indexOf(startStack) === -1 || legalStacks.indexOf(endStack) === -1) {
+    console.log('Sorry, invalid entry. Please choose a, b, or c for each stack.')
+    return;
+  }
+  if (!isLegal(startStack,endStack) || startStack === endStack) {
+    console.log ('Sorry, invalid move.');
+    return;
+  }
+  const stacksArr = movePiece(startStack, endStack);
+  stacks[startStack] = stacksArr[0];
+  stacks[endStack] = stacksArr[1];
+  if (checkForWin()) {
+    console.log ('Congrats!  You are a winner.')
+    resetStacks();
+    return;
+  }
 }
 
 function getPrompt() {
