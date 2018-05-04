@@ -1,5 +1,34 @@
 'use strict';
+/*
+Coding Plan
 
+towersofhanoi function
+check for valid input (must be a, b, or c, can't pick same letter twice)
+check if the move is legal
+ if not => say Sorry and return
+ move piece
+ after piece is moved change stack arrays
+ checkForWin
+  if win => print winner, resetStacks, return
+
+
+isLegal function
+  check for empty arrays
+  if first array empty, return false
+  if second array empty, return true
+  if last from first array less than last from first array, true
+  false
+
+resetStacks
+  all we need to do is change stacka stackb and stackc to their starting values
+
+checkForWin
+  too hard to check if arrays are equal so just check if stackb has length 4
+
+movepiece -- just pop the second array and push it into the first one
+
+that's all folks
+*/
 const assert = require('assert');
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -61,7 +90,6 @@ function towersOfHanoi(startStack, endStack) {
   if (checkForWin()) {
     console.log ('Congrats!  You are a winner.')
     resetStacks();
-    return;
   }
 }
 
