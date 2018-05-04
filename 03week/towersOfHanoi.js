@@ -50,25 +50,31 @@ function printStacks() {
 
 function movePiece(startStack, endStack) {
   stacks[endStack].push(stacks[startStack].pop());
+  //moves the top stone from the start stack to the top of the end stack
 }
 
 function isLegal(startStack, endStack) {
   const startArr = stacks[startStack];
   const endArr = stacks[endStack];
   if (!startArr[0])return false
+  //you can't move something from nothing
   if (!endArr[0])return true
+  //if you have something to move you can always move it to an empty stack
   if (startArr[startArr.length -1] < endArr[endArr.length -1]) return true;
+  /*if the top stone in the starting stack is smaller than the top stone of the
+  ending stack, you are in the clear. */
   return false;
 }
 
 function checkForWin() {
   return Boolean(stacks.b.length === 4)
+  //if stackb has 4 stones, you win!
 }
 
 function resetStacks() {
-  stacks.a = [4, 3, 2, 1];
-  stacks.b = [];
-  stacks.c = [];
+  stacks.a = [4, 3, 2, 1]; //full
+  stacks.b = [];// empty
+  stacks.c = []; //empty
 }
 
 function towersOfHanoi(startStack, endStack) {
