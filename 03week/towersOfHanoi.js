@@ -79,19 +79,25 @@ function resetStacks() {
 
 function towersOfHanoi(startStack, endStack) {
   const legalStacks = ['a','b','c'];
-  if (legalStacks.indexOf(startStack) === -1 || legalStacks.indexOf(endStack) === -1) {
+  startStack = startStack.toLowerCase().trim();
+  endStack = endStack.toLowerCase().trim();
+  if (legalStacks.indexOf(startStack) === -1) {
     console.log('Sorry, invalid entry. Please choose a, b, or c for each stack.')
     return;
-  }
+  } //if they didn't choose a, b, or c for both stacks send error message and return
+  if (startStack === endStack) {
+    console.log('Sorry, invalid entry.  Please choose two different stacks.')
+    return;
+  } //This stops the player from choosing the same stack twice
   if (!isLegal(startStack,endStack) || startStack === endStack) {
     console.log ('Sorry, invalid move.');
     return;
-  }
-  movePiece(startStack, endStack);
+  } //if the move is illegal, send an error message and prompt for a new choice
+  movePiece(startStack, endStack); // otherwise make the move
   if (checkForWin()) {
     console.log ('Congrats!  You are a winner.')
     resetStacks();
-  }
+  } //if the player won, send them a winner message and then reset the game
 }
 
 function getPrompt() {
