@@ -49,10 +49,7 @@ function printStacks() {
 }
 
 function movePiece(startStack, endStack) {
-  const startArr = stacks[startStack];
-  const endArr = stacks[endStack];
-  endArr.push(startArr.pop());
-  return [startArr, endArr]
+  stacks[endStack].push(stacks[startStack].pop());
 }
 
 function isLegal(startStack, endStack) {
@@ -84,9 +81,7 @@ function towersOfHanoi(startStack, endStack) {
     console.log ('Sorry, invalid move.');
     return;
   }
-  const stacksArr = movePiece(startStack, endStack);
-  stacks[startStack] = stacksArr[0];
-  stacks[endStack] = stacksArr[1];
+  movePiece(startStack, endStack);
   if (checkForWin()) {
     console.log ('Congrats!  You are a winner.')
     resetStacks();
