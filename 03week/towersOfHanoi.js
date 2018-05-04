@@ -37,6 +37,8 @@ const rl = readline.createInterface({
 });
 
 let stacks = {
+/*stacks should be declared wih const, but
+cannot be changed without changing the tests*/
   a: [4, 3, 2, 1],
   b: [],
   c: []
@@ -117,7 +119,7 @@ if (typeof describe === 'function') {
   describe('#towersOfHanoi()', () => {
     it('should be able to move a block', () => {
       towersOfHanoi('a', 'b');
-      assert.deepEqual(stacks, { a: [4, 3, 2], b: [1], c: [] });
+      assert.deepEqual(stacks, { a: [4, 3, 2], b: [1], c: [] }); 
     });
   });
 
@@ -127,7 +129,7 @@ if (typeof describe === 'function') {
         a: [4, 3, 2],
         b: [1],
         c: []
-      };
+      }; //This code requires stacks to be declared with let. It should be refactored.
       assert.equal(isLegal('a', 'b'), false);
     });
     it('should allow a legal move', () => {
@@ -135,15 +137,15 @@ if (typeof describe === 'function') {
         a: [4, 3, 2, 1],
         b: [],
         c: []
-      };
+      }; //This code requires stacks to be declared with let. It should be refactored.
       assert.equal(isLegal('a', 'c'), true);
     });
   });
   describe('#checkForWin()', () => {
     it('should detect a win', () => {
-      stacks = { a: [], b: [4, 3, 2, 1], c: [] };
+      stacks = { a: [], b: [4, 3, 2, 1], c: [] }; //This code requires stacks to be declared with let. It should be refactored.
       assert.equal(checkForWin(), true);
-      stacks = { a: [1], b: [4, 3, 2], c: [] };
+      stacks = { a: [1], b: [4, 3, 2], c: [] }; //This code requires stacks to be declared with let. It should be refactored.
       assert.equal(checkForWin(), false);
     });
   });
