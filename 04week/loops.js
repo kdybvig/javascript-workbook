@@ -20,3 +20,17 @@ for (const key in persons) {
 for (const key in persons) {
   if (key === 'birthDate') console.log('birth date:',persons[key])
 }
+
+//while loop to count from 1 to 1000
+let count = 1;
+while (count < 1001) {
+  console.log(count);
+  count ++;
+};
+
+//do...while loop to count from 1 to 1000
+count = 1
+do {
+  console.log(count);
+  count++;
+} while (count < 1001);
