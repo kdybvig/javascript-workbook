@@ -9,6 +9,7 @@ let jobTypes = {
   programmer: 'Any Ship!'
 };
 
+//class for crewmembers, crewmembers start with no ship assigned
 class CrewMember {
   constructor(name, job, specialSkill, ship) {
     this.name = name;
@@ -16,14 +17,18 @@ class CrewMember {
     this.specialSkill = specialSkill;
   }
 
+
+  //crew members can only enter ships based on their job
   enterShip(shipName) {
-    if(shipName) {
+    console.log(jobTypes[this.job])
+    if(shipName && shipName.type === jobTypes[this.job]) {
       this.ship = shipName;
       shipName.crew.push(this)
     }
   }
 }
 
+//class for ships, ships start with no crew
 class Ship {
   constructor (name, type, ability) {
     this.name = name;
@@ -32,6 +37,7 @@ class Ship {
     this.crew = [];
   }
 
+  //only returns ability if the ship has a crew
   missionStatement() {
     if(this.crew.length === 0) return "Can't perform a mission yet."
       return this.ability
