@@ -1,3 +1,14 @@
+/* Code Plan
+enterShip function should only allow crew members to enter ships based on their job type.
+entership should push this into crew of the new ship.
+entership should not allow someone to enter the same ship twice
+
+crewmember has one method enterShip
+
+ship has one method missionStatement
+missionStatement should only return if ship has crew
+*/
+
 'use strict';
 
 let assert = require('assert');
@@ -19,11 +30,18 @@ class CrewMember {
 
 
   //crew members can only enter ships based on their job
+  //crew members cannot enter the same ship twice or enter a ship that doesn't exist
   enterShip(shipName) {
     console.log(jobTypes[this.job])
-    if(shipName && shipName.type === jobTypes[this.job]) {
+    if((shipName && (shipName.type === jobTypes[this.job] || this.job === 'programmer')) && shipName.crew.indexOf(this) === -1) {
       this.ship = shipName;
       shipName.crew.push(this)
+    } else if (!shipName) {
+        console.log(`${shipName} does not exist... yet.`)
+    } else if (shipName.crew.indexOf(this) > -1) {
+        console.log('You are already on this ship.')
+    } else {
+        console.log('You are not allowed on this ship.')
     }
   }
 }
