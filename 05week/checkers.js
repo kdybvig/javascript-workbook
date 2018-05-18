@@ -132,9 +132,26 @@ class Game {
     const whichCol = Number(whichPiece.charAt(1));
     const whereRow = Number(toWhere.charAt(0));
     const whereCol = Number(toWhere.charAt(1));
-    console.log('validSquare: ',this.validSquare(whichPiece) && this.validSquare(toWhere))
-    console.log('validStartAndEnd: ', this.hasPiece(whichRow,whichCol) && !(this.hasPiece(whereRow,whereCol)))
-    console.log('can move: ', this.canMove(whichRow, whichCol, whereRow, whereCol))
+    if (!this.validSquare(whichPiece) || !this.validSquare(toWhere)) {
+      console.log('Please choose a two digit number representing the row and column');
+      return;
+    }
+    /*if the first space is not occupied by the current player or the second
+    space is occupied, returns an error message to the user.*/
+    console.log(this.hasPiece(whichRow,whichCol), this.curPlayer);
+    if (this.hasPiece(whichRow,whichCol) !== this.curPlayer || (this.hasPiece(whereRow,whereCol))) {
+      console.log(`${this.curPlayer === 'r' ? 'Red' : 'Black'}, please move one of your checkers to an unoccupied space.`)
+      return;
+    }
+    if (!this.canMove(whichRow, whichCol, whereRow, whereCol)) {
+      console.log("Sorry, invalid move.  Please choose another move.")
+      return;
+    }
+    console.log('symbol: ', this.hasPiece(whichRow,whichCol))
+    //make the move by updating the board to reflect the new pieces
+    this.updateBoard(whichRow, whichCol, whereRow, whereCol);
+    //switch the current player from red to black or black to red
+    this.curPlayer = this.curPlayer === 'r' ? 'b' : 'r';
   }
 
   validSquare(square) {
@@ -145,8 +162,9 @@ class Game {
     return (validNumber(square.charAt(0)) && validNumber(square.charAt(1)) && square.length === 2 && isInhabitable(square))
   }
 
+  //returns false if there is no piece or the symbol if there is a piece
   hasPiece(row, col) {
-    return Boolean(this.board.grid[row][col]);
+    return this.board.grid[row][col] && this.board.grid[row][col].symbol;
   }
 
   //checks if the middle square is occupied by an enemy checker
@@ -167,6 +185,18 @@ class Game {
       return Math.abs(colDiff) === 1 || this.canJump(whichRow, whichCol, whereRow, whereCol)
     }
     return false;
+  }
+
+  updateBoard (whichRow, whichCol, whereRow, whereCol) {
+    this.board.grid[whereRow][whereCol] = this.board.grid[whichRow][whichCol]
+    this.board.grid[whichRow][whichCol] = null;
+    //if it jumped an enemy checker, remove the enemychecker
+    if (Math.abs(whereRow - whichRow) === 2) {
+      const middleRow = (whichRow + whereRow)/2;
+      const middleCol = (whichCol + whereCol)/2
+      this.board.grid[middleRow][middleCol] = null;
+    }
+
   }
 }
 
