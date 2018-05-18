@@ -1,3 +1,42 @@
+/*  Code Plan
+Outline
+
+X this.curPlayer - tracks current player
+
+X class Checker - class for Checker objects
+X placeInitialCheckers => should put 16 checker objects on the board
+
+moveChecker - should move a checker if possible or return an error message
+   validSquares - should check if the squares are on the board and inhabitable
+   return true or false
+   validStartAndEnd - should check that the start square has a checker and end does not
+   return true or false
+   canMove - should check if the move is possible to make
+   return true or false
+   kingMe - king the piece that just moved if it made it to the last row
+   updateBoard - should change the board so that jumped pieces are deleted and the piece is moved
+   no return;
+   checkForWin - check if current player has won
+   return true or false, if true end game and call restart function
+   switchplayer
+   getPrompt
+
+
+
+Functions
+
+  validSquare - should return false if: first digit is less than 0, second
+  digit is more than 7, the string is longer than two or either 1st or second
+  digit is not a string
+
+  validStartAndEnd - change to hasPiece check if start square and end square
+  have a piece
+
+  canMove - check if rowDiff is in available moves and rowDiff is equal to
+  absolute value of column difference.  if so, if absolute value of column
+  difference is 2 check if the middle square has a piece using this.hasPiece.
+*/
+
 'use strict';
 
 const assert = require('assert');
@@ -8,8 +47,12 @@ const rl = readline.createInterface({
 });
 
 
-function Checker() {
-  // Your code here
+class Checker {
+  constructor(symbol) {
+    this.symbol = symbol;
+    this.king = false;
+    this.hasMoves = symbol === 'b' ? [1,2] : [-1,-2];
+  }
 }
 
 class Board {
@@ -52,15 +95,78 @@ class Board {
     console.log(string);
   }
 
-  // Your code here
+  /*this function uses for loops instead of forEach because it is only checking
+  3 of the 8 rows and 4 of the 8 columns*/
+  createCheckers (startRow, endRow, symbol) {
+    //add checkers to rows starting with startRow and ending just before endRow
+    for (let curRow = startRow; curRow < endRow; curRow ++) {
+      /*start with column 0 if the row is even and 1 if the row is odd and place
+       a checker in every other column*/
+      for(let curCol = curRow%2; curCol < 8; curCol += 2) {
+        this.grid[curRow][curCol] = new Checker(symbol)
+      }
+    }
+  }
+
+  placeInitialCheckers() {
+    //create 12 black checkers
+    this.createCheckers(0, 3, 'b')
+    //create 12 red red checkers
+    this.createCheckers(5, 8, 'r')
+  }
 }
 
 class Game {
   constructor() {
     this.board = new Board;
+    this.curPlayer = null;
   }
   start() {
     this.board.createGrid();
+    this.board.placeInitialCheckers();
+    this.curPlayer = 'r'
+  }
+
+  moveChecker (whichPiece, toWhere) {
+    const whichRow = Number(whichPiece.charAt(0));
+    const whichCol = Number(whichPiece.charAt(1));
+    const whereRow = Number(toWhere.charAt(0));
+    const whereCol = Number(toWhere.charAt(1));
+    console.log('validSquare: ',this.validSquare(whichPiece) && this.validSquare(toWhere))
+    console.log('validStartAndEnd: ', this.hasPiece(whichRow,whichCol) && !(this.hasPiece(whereRow,whereCol)))
+    console.log('can move: ', this.canMove(whichRow, whichCol, whereRow, whereCol))
+  }
+
+  validSquare(square) {
+    //each character in the string must be a number between 0 and 7
+    const validNumber = (numStr) => (Number(numStr) !== NaN && Number(numStr) >= 0 && Number(numStr) <= 7)
+    //the row and column should either both be even or both be odd
+    const isInhabitable = (square) => Number(square.charAt(0))%2 === Number(square.charAt(1))%2
+    return (validNumber(square.charAt(0)) && validNumber(square.charAt(1)) && square.length === 2 && isInhabitable(square))
+  }
+
+  hasPiece(row, col) {
+    return Boolean(this.board.grid[row][col]);
+  }
+
+  //checks if the middle square is occupied by an enemy checker
+  canJump (whichRow, whichCol, whereRow, whereCol) {
+    const middleRow = (whichRow + whereRow)/2;
+    const middleCol = (whichCol + whereCol)/2
+    return this.board.grid[middleRow][middleCol] && this.board.grid[middleRow][middleCol].symbol !== this.curPlayer;
+  }
+
+  canMove (whichRow, whichCol, whereRow, whereCol) {
+    const availMoves = this.board.grid[whichRow][whichCol].hasMoves
+    const rowDiff = whereRow - whichRow;
+    const colDiff = whereCol - whichCol;
+    /*check if the piece is moving the correct spaces in the correct direction
+    and is moving the same number of spaces left or right as up or down,
+    then if moving more than one space, make sure it can jump*/
+    if (availMoves.indexOf(rowDiff) > -1 && Math.abs(rowDiff) === Math.abs(colDiff)) {
+      return Math.abs(colDiff) === 1 || this.canJump(whichRow, whichCol, whereRow, whereCol)
+    }
+    return false;
   }
 }
 
