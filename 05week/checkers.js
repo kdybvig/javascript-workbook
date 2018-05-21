@@ -143,6 +143,7 @@ class Game {
     this.curPlayer = null;
     this.mustJump = false;
     this.keepPlaying = true;
+    this.moveCount = 0;
   }
   start() {
     this.board.createGrid();
@@ -155,6 +156,7 @@ class Game {
 
   moveChecker (whichPiece, toWhere) {
     if (this.checkForDraw(whichPiece, toWhere)) return;
+    this.moveCount ++;
     const whichRow = Number(whichPiece.charAt(0));
     const whichCol = Number(whichPiece.charAt(1));
     const whereRow = Number(toWhere.charAt(0));
@@ -197,7 +199,9 @@ class Game {
   }
 
   checkForDraw(first, last) {
-    const draw = first === '00' && last === '00';
+    /*game is declared a draw if 40 moves happen and neither player captures a
+    piece or turns one of their men into a king*/
+    const draw = (first === '00' && last === '00') || this.moveCount === 40;
     if (draw) {
       console.log('The game is a draw.')
       this.playAgain();
@@ -254,6 +258,7 @@ class Game {
     this.board.grid[whichRow][whichCol] = null;
     //if it jumped an enemy checker, remove the enemychecker
     if (Math.abs(whereRow - whichRow) === 2) {
+      this.moveCount = 0;
       const middleRow = (whichRow + whereRow)/2;
       const middleCol = (whichCol + whereCol)/2
       this.board.grid[middleRow][middleCol] = null;
@@ -288,6 +293,7 @@ class Game {
 
   //turns a checker piece into a king
   kingMe(checker) {
+    this.moveCount = 0;
     checker.symbol = checker.symbol.toUpperCase();
     checker.king = true;
     checker.hasMoves.push(checker.hasMoves[0] * -1);
