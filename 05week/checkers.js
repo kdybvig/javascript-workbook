@@ -46,7 +46,9 @@ Functions
 
   doubleJump - only runs if lastJump is equal to whichPiece
   should check if the move is a jump
-  should return true or false
+  should return true or 'illegal jump'
+
+  game should restart after wincheck
 
 */
 
@@ -140,12 +142,11 @@ class Game {
     this.board = new Board;
     this.curPlayer = null;
     this.lastJump = null;
+    this.keepPlaying = true;
   }
   start() {
     this.board.createGrid();
     this.board.placeInitialCheckers();
-    this.board.grid[3][2] = this.board.grid[6][5]
-    this.board.grid[6][5] = null;
     this.curPlayer = 'r'
   }
 
@@ -154,15 +155,14 @@ class Game {
     const whichCol = Number(whichPiece.charAt(1));
     const whereRow = Number(toWhere.charAt(0));
     const whereCol = Number(toWhere.charAt(1));
-    console.log('lastJump :', this.lastJump)
     if (!this.validSquare(whichPiece) || !this.validSquare(toWhere)) {
       console.log('Please choose a two digit number representing the row and column');
       return;
     }
-    //isDouble jump will equal true, false, or sometimes equal the string 'bad jump'
+    //isDouble jump will equal true, false, or sometimes equal the string 'illegal jump'
     const isDoubleJump = (whichPiece === this.lastJump && this.doubleJump(whichRow, whichCol, whereRow, whereCol))
-    if (isDoubleJump === 'bad jump') {
-      console.log("Sorry, invalid move.  Please choose another move. Jerk.")
+    if (isDoubleJump === 'illegal jump') {
+      console.log("Sorry, invalid move.  Please choose another move.")
       return;
     }
     /*if the first space is not occupied by the current player or the second
@@ -181,7 +181,10 @@ class Game {
     this.curPlayer = this.curPlayer === 'r' ? 'b' : 'r';
 
     if (this.checkForWin()) {
-      console.log('GAME OVER!')
+      this.board.viewGrid();
+      const winner = this.curPlayer === 'r' ? 'Black' : 'Red';
+      console.log(`GAME OVER! ${winner} wins!`)
+      this.playAgain();
     }
   }
 
@@ -203,13 +206,12 @@ class Game {
     //temporarily switch curPlayer for the checkJump function
     const player = this.curPlayer;
     this.curPlayer = this.curPlayer = 'r' ? 'b' : 'r'
-    console.log('twoSpace: ', twoSpaces, 'empty :', empty, this.canJump(whichRow, whichCol, whereRow, whereCol))
     if(twoSpaces && empty && this.canJump(whichRow, whichCol, whereRow, whereCol)) {
-      this.curPlayer = player;
       return true;
     }
+    //only switches the player back if the player did not choose a legal move
     this.curPlayer = player;
-    return 'bad jump';
+    return 'illegal jump';
   }
 
   //returns false if there is no piece or the symbol if there is a piece
@@ -221,7 +223,6 @@ class Game {
   canJump (whichRow, whichCol, whereRow, whereCol) {
     const middleRow = (whichRow + whereRow)/2;
     const middleCol = (whichCol + whereCol)/2
-    console.log(middleRow,middleCol)
     return this.board.grid[middleRow][middleCol] && this.board.grid[middleRow][middleCol].symbol.toLowerCase() !== this.curPlayer;
   }
 
@@ -252,11 +253,8 @@ class Game {
       //This for loop only checks the odd indexed moves (the jump moves) to see if a double jump is possible
       for (let moveIndex = 1; moveIndex < square.hasMoves.length; moveIndex += 2) {
         const move = square.hasMoves[moveIndex];
-        console.log('move :', move)
-        console.log('row and col:',whereRow, whereCol)
         if(this.canMove(whereRow, whereCol, whereRow + move, whereCol + move) || this.canMove(whereRow, whereCol, whereRow + move, whereCol - move)) {
           //if a double jump is possible it records the last location to the .lastJump property of the game object
-          console.log('did we get here?')
           this.lastJump = whereRow.toString() + whereCol.toString();
         }
       };
@@ -268,15 +266,19 @@ class Game {
     if (whereRow === lastRow && this.board.grid[whereRow][whereCol].king === false) {
       console.log('King me!')
       this.board.grid[whereRow][whereCol] = this.kingMe(this.board.grid[whereRow][whereCol])
+      //You are not allowed to double jump immediately after your piece has become a king
+      this.lastJump = null;
     }
   }
 
+  //checks if a piece can move from a given square to another square
   canMove (whichRow, whichCol, whereRow, whereCol) {
     const emptySquare = whereRow <=7 && whereCol <=7 && whereRow >= 0 && whereCol >=0 && !this.hasPiece(whereRow, whereCol)
     const spacesMoved = Math.abs(whereRow - whichRow)
     return  emptySquare && (spacesMoved === 1 || this.canJump(whichRow, whichCol, whereRow, whereCol))
   }
 
+  //turns a checker piece into a king
   kingMe(checker) {
     checker.symbol = checker.symbol.toUpperCase();
     checker.king = true;
@@ -285,6 +287,7 @@ class Game {
     return checker;
   }
 
+  //checks if the next player has any possible moves remaining
   checkForWin () {
     let gameOver = true;
     this.board.grid.forEach((row, whichRow) => {
@@ -300,14 +303,35 @@ class Game {
     });
     return gameOver;
   }
+
+  //if the game is over, prompts to ask players if they would like to play again
+  playAgain() {
+    this.keepPlaying = false;
+    rl.question('Do you want to play again? (Y/N):', (yesOrNo) => {
+      if(yesOrNo.toLowerCase() === 'y') {
+        this.keepPlaying = true;
+        this.start();
+        getPrompt();
+      } else if (yesOrNo.toLowerCase() === 'n') {
+        console.log('Good bye!')
+        rl.close();
+        return;
+      } else {
+        (this.playAgain())
+      }
+    });
+  }
 }
 
 function getPrompt() {
   game.board.viewGrid();
+  const nextPlayer = game.curPlayer === 'r' ? 'Red' : 'Black'
+  if(game.lastJump) {console.log('Double jump possible.')}
+  else {console.log(`${nextPlayer}'s turn.`)}
   rl.question('which piece?: ', (whichPiece) => {
     rl.question('to where?: ', (toWhere) => {
       game.moveChecker(whichPiece, toWhere);
-      getPrompt();
+      if(game.keepPlaying) getPrompt();
     });
   });
 }
