@@ -66,7 +66,7 @@ class Checker {
   constructor(symbol) {
     this.symbol = symbol;
     this.king = false;
-    this.hasMoves = symbol === 'b' ? [1,2] : [-1,-2];
+    this.hasMoves = symbol === 'r' ? [1,2] : [-1,-2];
   }
 }
 
@@ -130,9 +130,9 @@ class Board {
 
   placeInitialCheckers() {
     //create 12 black checkers
-    this.createCheckers(0, 3, 'b')
+    this.createCheckers(0, 3, 'r')
     //create 12 red red checkers
-    this.createCheckers(5, 8, 'r')
+    this.createCheckers(5, 8, 'b')
   }
 }
 
