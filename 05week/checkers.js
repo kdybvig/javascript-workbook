@@ -176,12 +176,12 @@ class Game {
     //validJump will equal true or  'illegal jump'
     const jumpRequired = (this.mustJump && this.validJump(whichRow, whichCol, whereRow, whereCol))
     if (jumpRequired === 'illegal jump') {
-      console.log("Sorry, invalid move.  Please choose another move. JERK!")
+      console.log("Sorry, invalid move.  Please choose another move.")
       return;
     }
 
     if (!this.legalMove(whichRow, whichCol, whereRow, whereCol)) {
-      console.log("Sorry, invalid move.  Please choose another move. LOSER.")
+      console.log("Sorry, invalid move.  Please choose another move.")
       return;
     }
     //make the move by updating the board to reflect the new pieces
