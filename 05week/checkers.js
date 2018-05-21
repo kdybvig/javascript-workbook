@@ -141,16 +141,20 @@ class Game {
   constructor() {
     this.board = new Board;
     this.curPlayer = null;
-    this.lastJump = null;
+    this.mustJump = false;
     this.keepPlaying = true;
   }
   start() {
     this.board.createGrid();
     this.board.placeInitialCheckers();
-    this.curPlayer = 'r'
+    this.curPlayer = 'b'
+    console.log('Welcome to checkers.')
+    console.log('To declare a draw answer 00 to both questions.')
+    console.log('To quit at any time, press CTRL + C')
   }
 
   moveChecker (whichPiece, toWhere) {
+    if (this.checkForDraw(whichPiece, toWhere)) return;
     const whichRow = Number(whichPiece.charAt(0));
     const whichCol = Number(whichPiece.charAt(1));
     const whereRow = Number(toWhere.charAt(0));
@@ -159,33 +163,46 @@ class Game {
       console.log('Please choose a two digit number representing the row and column');
       return;
     }
-    //isDouble jump will equal true, false, or sometimes equal the string 'illegal jump'
-    const isDoubleJump = (whichPiece === this.lastJump && this.doubleJump(whichRow, whichCol, whereRow, whereCol))
-    if (isDoubleJump === 'illegal jump') {
-      console.log("Sorry, invalid move.  Please choose another move.")
-      return;
-    }
+
     /*if the first space is not occupied by the current player or the second
     space is occupied, returns an error message to the user.*/
-    if ((this.hasPiece(whichRow,whichCol) !== this.curPlayer && !isDoubleJump) || (this.hasPiece(whereRow,whereCol))) {
+    if (this.hasPiece(whichRow,whichCol) !== this.curPlayer || this.hasPiece(whereRow,whereCol)) {
       console.log(`${this.curPlayer === 'r' ? 'Red' : 'Black'}, please move one of your checkers to an unoccupied space.`)
       return;
     }
-    if (!isDoubleJump && !this.legalMove(whichRow, whichCol, whereRow, whereCol)) {
-      console.log("Sorry, invalid move.  Please choose another move.")
+
+    //validJump will equal true or  'illegal jump'
+    const jumpRequired = (this.mustJump && this.validJump(whichRow, whichCol, whereRow, whereCol))
+    if (jumpRequired === 'illegal jump') {
+      console.log("Sorry, invalid move.  Please choose another move. JERK!")
+      return;
+    }
+
+    if (!this.legalMove(whichRow, whichCol, whereRow, whereCol)) {
+      console.log("Sorry, invalid move.  Please choose another move. LOSER.")
       return;
     }
     //make the move by updating the board to reflect the new pieces
     this.updateBoard(whichRow, whichCol, whereRow, whereCol);
-    //switch the current player from red to black or black to red
-    this.curPlayer = this.curPlayer === 'r' ? 'b' : 'r';
+    //switch the current player from red to black or black to red if there is no double jump possible
+    if(!this.mustJump) {
+      this.curPlayer = this.curPlayer === 'r' ? 'b' : 'r';
+      if (this.checkForWin()) {
+        this.board.viewGrid();
+        const winner = this.curPlayer === 'r' ? 'Black' : 'Red';
+        console.log(`GAME OVER! ${winner} wins!`)
+        this.playAgain();
+      }
+    }
+  }
 
-    if (this.checkForWin()) {
-      this.board.viewGrid();
-      const winner = this.curPlayer === 'r' ? 'Black' : 'Red';
-      console.log(`GAME OVER! ${winner} wins!`)
+  checkForDraw(first, last) {
+    const draw = first === '00' && last === '00';
+    if (draw) {
+      console.log('The game is a draw.')
       this.playAgain();
     }
+    return draw
   }
 
   validSquare(square) {
@@ -197,20 +214,11 @@ class Game {
   }
 
   //checks if a doubleJump is possible
-  doubleJump(whichRow, whichCol, whereRow, whereCol) {
-    const square = this.board.grid[whichCol][whichRow];
+  validJump(whichRow, whichCol, whereRow, whereCol) {
     const rowDiff = whereRow - whichRow;
     const colDiff = whereCol - whichCol;
     const twoSpaces = Math.abs(rowDiff) === 2 && Math.abs(colDiff) === 2;
-    const empty = !this.board.grid[whereRow][whereCol];
-    //temporarily switch curPlayer for the checkJump function
-    const player = this.curPlayer;
-    this.curPlayer = this.curPlayer = 'r' ? 'b' : 'r'
-    if(twoSpaces && empty && this.canJump(whichRow, whichCol, whereRow, whereCol)) {
-      return true;
-    }
-    //only switches the player back if the player did not choose a legal move
-    this.curPlayer = player;
+    if(twoSpaces)return true;
     return 'illegal jump';
   }
 
@@ -241,7 +249,7 @@ class Game {
 
   updateBoard (whichRow, whichCol, whereRow, whereCol) {
     //clears the last jump before moving the pieces
-    this.lastJump = null;
+    this.mustJump = false;
     this.board.grid[whereRow][whereCol] = this.board.grid[whichRow][whichCol]
     this.board.grid[whichRow][whichCol] = null;
     //if it jumped an enemy checker, remove the enemychecker
@@ -255,7 +263,7 @@ class Game {
         const move = square.hasMoves[moveIndex];
         if(this.canMove(whereRow, whereCol, whereRow + move, whereCol + move) || this.canMove(whereRow, whereCol, whereRow + move, whereCol - move)) {
           //if a double jump is possible it records the last location to the .lastJump property of the game object
-          this.lastJump = whereRow.toString() + whereCol.toString();
+          this.mustJump = true;
         }
       };
       /*This is just to pass the test.  I have not found a useful way to
@@ -296,6 +304,7 @@ class Game {
           square.hasMoves.forEach(move => {
             if(this.canMove(whichRow, whichCol, whichRow + move, whichCol + move) || this.canMove(whichRow, whichCol, whichRow + move, whichCol - move)) {
               gameOver = false;
+              if (Math.abs(move) === 2) this.mustJump = true;
             }
           });
         }
@@ -326,8 +335,8 @@ class Game {
 function getPrompt() {
   game.board.viewGrid();
   const nextPlayer = game.curPlayer === 'r' ? 'Red' : 'Black'
-  if(game.lastJump) {console.log('Double jump possible.')}
-  else {console.log(`${nextPlayer}'s turn.`)}
+  console.log(`${nextPlayer}'s turn.`)
+  if(game.mustJump) {console.log('Reminder: You must capture a piece when able.')}
   rl.question('which piece?: ', (whichPiece) => {
     rl.question('to where?: ', (toWhere) => {
       game.moveChecker(whichPiece, toWhere);
