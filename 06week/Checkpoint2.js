@@ -82,7 +82,7 @@ console.log(numCount)
 
 //Find the index of the first "Austin" value (the value plus its index equals 512)
 //findIndex returns the index of the first truthy output of the callback function
-const atxIdx = nums.findIndex((num, index) => num + index === 512 ) 
+const atxIdx = nums.findIndex((num, index) => num + index === 512 )
 
 console.log(`index: ${atxIdx}, value: ${nums[atxIdx]}`);
 
@@ -114,6 +114,11 @@ if (typeof describe === 'function') {
       assert.equal(numCount['0'], 93);
       assert.equal(numCount['5'], 97);
       assert.equal(numCount['7'], 95);
+    });
+  });
+  describe('atxIdx', () => {
+    it('should equal the index of the first "Austin" value ', () => {
+      assert.equal(atxIdx + nums[atxIdx], 512);
     });
   });
 }
