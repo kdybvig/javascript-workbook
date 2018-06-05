@@ -1,0 +1,53 @@
+Components needed:
+Board (stateful)
+Square (stateless)
+Canvas (stateless)
+PlayAgain (stateless)
+
+Information stored in state:
+which symbols are on the board (state.board)
+what coordinates to draw the line (this.canvasCoordinates)
+whose turn it is (this. curPlayer)
+is the game over (this.gameOver)
+
+Functions needed:
+
+handleClick:  should change state to put an x or an o in the clicked square.
+Should not do anything if the game is over or if the square is not empty.
+Should check for win after updating the board.
+If the game is won, this should update state to reflect that the game is over
+and a new line is drawn.
+
+checkForWin
+should check if either player has three in a row.  Will use an array of arrays
+with the sets of winning indecies.  If the squares at any set of indicies are
+all the same value should return true, otherwise should return false.
+This should also return the coordinates for the line that is drawn through
+the winning symbols.
+
+RenderSquares
+should make a square
+should make squares on top have no top border, left no left border, etc.
+should put the correct symbol in the newBoard
+
+endOfGame
+should render only if the game is over
+should render a different message for a tie and a win
+should render a play again button
+
+handlePlayAgainClick
+should reset the state to the original state so the game is restarted
+
+Stateless components:
+
+Square
+a td that runs handleClick on a click
+properties: value, onClick, className
+
+Canvas
+a canvas element that draws a line
+properties: coordinates
+
+PlayAgain
+a button that runs handlePlayAgainClick on click
+properties: onClick
