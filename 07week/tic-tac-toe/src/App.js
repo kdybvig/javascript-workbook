@@ -50,7 +50,6 @@ class App extends Component {
       if (hasCombo) {
         gameOver = 'win';
         if(comboIdx < 3) {
-          console.log('hey there')
           const yPos = 27 + 52*comboIdx
           newCoordinates.push(startPos, yPos, endPos, yPos)
         }
@@ -69,7 +68,6 @@ class App extends Component {
     if(!gameOver) { //if the game is not won
       if(board.indexOf('') === -1) gameOver = 'tie'; //if every square is occupied
     }
-    if(newCoordinates.length > 0) console.log(newCoordinates)
     return [gameOver, newCoordinates];
   }
 
