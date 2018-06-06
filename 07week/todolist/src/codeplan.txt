@@ -1,0 +1,39 @@
+I want to fulfill the following user stories:
+
+1. I can add items to the list
+2. I can delete items from the list
+3. I can drag the list items to reorder them
+4. I can check and uncheck the list items
+5. I can press a button to clear all the items in the list
+6. I can press a button to uncheck all of the items in the list
+
+Components:
+App - could make the app a container component, but instead I am including the
+buttons for adding, clearing, input, and unchecking.  I may consider refactoring
+the code in the future as I learn more about the best practices and styles for
+React.
+
+List: Contains everything having to do with the list and not involving buttons
+outside of the list, including all of the logic for reordering the list,
+deleting items from the list, and checking or unchecking items from the list,
+but not adding new items to the list, or unchecking all the items on the list.
+
+Task: This will be where the information about each individual task is displayed.
+The task will include an input for the checkbox, some text, and a delete button.
+The task will be both the drag source and drag target for the react-dnd.
+
+Functions needed:
+
+Handle clicks for all the buttons
+dragstart and hover functions for the tasks
+handlekeydown for the input to make it add on enter
+reorder list function to reorder items on the list when isDragging
+
+Dependencies:
+React-dnd to handle drag and drop
+Lodash - need flow to add both drag and drop to same component, and using
+uniqueId to give each task component a unique key and id
+
+
+Using react-dnd sortable-simple (on github: https://tinyurl.com/y8lbx2ub) as a
+reference for how to create a sortable list.
